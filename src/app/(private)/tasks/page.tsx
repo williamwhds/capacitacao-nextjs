@@ -1,12 +1,54 @@
 "use client";
 
+import styles from "./page.module.css";
+import { FormEvent, SubmitEvent, useState } from "react";
+
 import Task from "@/app/components/Task";
 import Button from "@/app/components/Button";
-import styles from "./page.module.css";
-import { useState } from "react";
+
+interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  priority?: "low" | "normal" | "high" | "finished" | null;
+  deadline?: Date | null;
+}
+
+type PriorityType = "low" | "normal" | "high" | "finished" | null;
 
 export default function Tasks() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [idCounter, setIdCounter] = useState(0);
+  const [tasks, setTasks] = useState([] as Task[]);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    priority: null,
+    deadline: null,
+  } as Task);
+
+  function handleAddNewTask(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setNewTask({
+      ...newTask,
+      id: idCounter,
+    });
+    setTasks([...tasks, { ...newTask, id: idCounter }]);
+    setIdCounter(idCounter + 1);
+    setModalIsOpen(false);
+
+    setNewTask({
+      ...newTask,
+      title: "",
+      description: "",
+      priority: null,
+      deadline: null,
+    });
+  }
+
+  function handleDeleteTask(id: number) {
+    setTasks(tasks.filter((task) => task.id !== id));
+  }
 
   return (
     <>
@@ -24,23 +66,56 @@ export default function Tasks() {
               </Button>
             </header>
 
-            <form className={styles.form}>
-              <input type="text" placeholder="Título" />
+            <form className={styles.form} onSubmit={(e) => handleAddNewTask(e)}>
+              <input
+                type="text"
+                placeholder="Título"
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    title: e.target.value,
+                  })
+                }
+              />
 
               <div>
-                <select name="" id="">
-                  <option value="">Sem prioridade</option>
-                  <option value="">Prioridade Baixa</option>
-                  <option value="">Prioridade Normal</option>
-                  <option value="">Prioridade Alta</option>
+                <select
+                  value={newTask.priority || "no"}
+                  onChange={(e) =>
+                    setNewTask({
+                      ...newTask,
+                      priority: (e.target.value === "no"
+                        ? null
+                        : e.target.value) as PriorityType,
+                    })
+                  }
+                >
+                  <option value="no">Sem prioridade</option>
+                  <option value="low">Prioridade Baixa</option>
+                  <option value="normal">Prioridade Normal</option>
+                  <option value="high">Prioridade Alta</option>
                 </select>
 
-                <input type="date" name="" id=""></input>
+                <input
+                  type="date"
+                  onChange={(e) =>
+                    setNewTask({
+                      ...newTask,
+                      deadline: e.target.value
+                        ? new Date(e.target.value)
+                        : null,
+                    })
+                  }
+                ></input>
               </div>
 
               <textarea
-                name=""
-                id=""
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    description: e.target.value,
+                  })
+                }
                 cols={30}
                 rows={10}
                 placeholder="Descrição"
@@ -74,6 +149,19 @@ export default function Tasks() {
             deadline={new Date()}
             priority="low"
           />
+
+          {tasks.map((task) => {
+            return (
+              <Task
+                key={task.id}
+                title={task.title}
+                description={task.description}
+                {...(task.priority && { priority: task.priority })}
+                {...(task.deadline && { deadline: task.deadline })}
+                onDelete={() => handleDeleteTask(task.id)}
+              />
+            );
+          })}
         </main>
       </div>
     </>

@@ -36,7 +36,7 @@ export default function Task({
               checked={isChecked}
               onChange={() => setIsChecked(!isChecked)}
             />
-            <button>
+            <button onClick={onDelete}>
               <FiTrash />
             </button>
           </div>
