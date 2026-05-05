@@ -1,0 +1,24 @@
+.low,
+.normal,
+.high,
+.finished {
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 0.1rem 0.4rem;
+}
+
+.low {
+    background-color: #3bb800;
+}
+
+.normal {
+    background-color: #ffb800;
+}
+
+.high {
+    background-color: #ff0000;
+}
+
+.finished {
+    background-color: #aaaabb;
+}
